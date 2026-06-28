@@ -29,9 +29,26 @@ type Action =
   | { type: 'SET_PROGRESS'; payload: ProgressData }
   | { type: 'TOGGLE_DARK_MODE' };
 
+const defaultUser: User = {
+  id: 'user-1',
+  name: 'Demo Student',
+  email: 'demo@college.edu',
+  year: 3,
+  college: 'Demo College',
+  avatar: '\u{1F9D1}\u200D\u{1F393}',
+  streak: 0,
+  badges: [],
+  totalScore: 0,
+  joinedAt: new Date().toISOString(),
+};
+
 const initialState: AppState = {
-  user: null,
-  users: [],
+  user: defaultUser,
+  users: [
+    { ...defaultUser, id: 'user-1', name: 'Demo Student', year: 3, avatar: '\u{1F9D1}\u200D\u{1F393}', totalScore: 0 },
+    { id: 'user-2', name: 'Priya Sharma', email: '', year: 3, college: 'IIT Delhi', avatar: '\u{1F469}\u200D\u{1F393}', streak: 5, badges: [], totalScore: 1250, joinedAt: '' },
+    { id: 'user-3', name: 'Rahul Verma', email: '', year: 4, college: 'BITS Pilani', avatar: '\u{1F468}\u200D\u{1F393}', streak: 3, badges: [], totalScore: 980, joinedAt: '' },
+  ],
   hrResponses: [],
   feedbackReports: [],
   gdSessions: [],
@@ -89,22 +106,14 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(appReducer, initialState);
-  const [initialized, setInitialized] = useState(false);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
-
-  useEffect(() => {
+  const [state, dispatch] = useReducer(appReducer, initialState, () => {
     const saved = localStorage.getItem('careercraft_state');
     if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        Object.keys(parsed).forEach(key => {
-          dispatch({ type: `SET_${key.toUpperCase()}` as any, payload: parsed[key] });
-        });
-      } catch { /* ignore */ }
+      try { return JSON.parse(saved); } catch { /* ignore */ }
     }
-    setInitialized(true);
-  }, []);
+    return initialState;
+  });
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   const loadProfile = useCallback(async () => {
     const token = getStoredToken();
@@ -115,35 +124,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const data = await api.getProfile();
       dispatch({ type: 'SET_USER', payload: data.user as any });
-      if (data.progress) {
-        dispatch({ type: 'SET_PROGRESS', payload: data.progress });
-      }
+      if (data.progress) dispatch({ type: 'SET_PROGRESS', payload: data.progress });
     } catch {
       setToken(null);
     }
     setIsAuthLoading(false);
   }, []);
 
-  useEffect(() => {
-    if (initialized) {
-      loadProfile();
-    }
-  }, [initialized, loadProfile]);
+  useEffect(() => { loadProfile(); }, [loadProfile]);
 
   useEffect(() => {
-    if (initialized) {
-      localStorage.setItem('careercraft_state', JSON.stringify({
-        users: state.users,
-        hrResponses: state.hrResponses,
-        feedbackReports: state.feedbackReports,
-        gdSessions: state.gdSessions,
-        dailyChallenges: state.dailyChallenges,
-        leaderboard: state.leaderboard,
-        progress: state.progress,
-        darkMode: state.darkMode,
-      }));
+    const toSave = { ...state };
+    if (toSave.user?.id.startsWith('user-')) {
+      delete (toSave as any).user;
     }
-  }, [state, initialized]);
+    localStorage.setItem('careercraft_state', JSON.stringify(toSave));
+  }, [state]);
 
   return (
     <AppContext.Provider value={{ state, dispatch, isAuthLoading }}>

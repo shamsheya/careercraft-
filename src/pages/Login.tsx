@@ -186,6 +186,21 @@ export default function Login() {
                   Forgot Password?
                 </button>
               </div>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10" /></div>
+                <div className="relative flex justify-center"><span className="px-3 bg-[#1a1040] text-indigo-400 text-xs">or</span></div>
+              </div>
+              <button onClick={() => {
+                const demoUser: User = {
+                  id: 'guest-' + Date.now(), name: 'Guest Explorer', email: 'guest@demo.com',
+                  year: 3, college: 'Demo College', avatar: '🚀',
+                  streak: 0, badges: [], totalScore: 0, joinedAt: new Date().toISOString(),
+                };
+                dispatch({ type: 'SET_USER', payload: demoUser });
+                navigate('/');
+              }} className="w-full py-3 border border-white/20 text-white rounded-xl font-semibold hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+                🚀 Continue as Guest
+              </button>
             </div>
           )}
 
