@@ -1,4 +1,4 @@
-import type { HRFeedback, FeedbackReport, GDParticipant } from '../types';
+import type { HRFeedback, FeedbackReport } from '../types';
 
 export function generateHRFeedback(question: string, answer: string): HRFeedback {
   const wordCount = answer.split(/\s+/).filter(Boolean).length;
@@ -121,7 +121,7 @@ export function generateFeedbackReport(roundType: string, metrics: any): Feedbac
   };
 }
 
-function generateStrengths(roundType: string, comm: number, tech: number, conf: number): string[] {
+function generateStrengths(_roundType: string, comm: number, tech: number, conf: number): string[] {
   const s: string[] = [];
   if (comm >= 70) s.push('Strong communication skills with clear articulation');
   if (tech >= 70) s.push('Good technical knowledge and accuracy');
@@ -131,7 +131,7 @@ function generateStrengths(roundType: string, comm: number, tech: number, conf: 
   return s;
 }
 
-function generateWeaknesses(roundType: string, comm: number, tech: number, conf: number, time: number): string[] {
+function generateWeaknesses(_roundType: string, comm: number, tech: number, conf: number, time: number): string[] {
   const w: string[] = [];
   if (comm < 60) w.push('Need to improve communication clarity and structure');
   if (tech < 60) w.push('Technical concepts need more practice');
@@ -203,7 +203,7 @@ function generateSuggestedAnswer(question: string): string {
   return 'A strong answer would address the question directly, provide a specific example from your experience, and connect it to the role you are applying for. Use the STAR method: describe the Situation, Task, Action you took, and the measurable Result.';
 }
 
-export function evaluateTechnicalAnswer(question: string, userAnswer: string, correctAnswer: string): {
+export function evaluateTechnicalAnswer(_question: string, userAnswer: string, correctAnswer: string): {
   correct: boolean; score: number; feedback: string; explanation: string
 } {
   const isCorrect = userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
@@ -214,7 +214,7 @@ export function evaluateTechnicalAnswer(question: string, userAnswer: string, co
   return { correct: isCorrect, score: Math.round(score), feedback, explanation: feedback };
 }
 
-export function evaluateGDResponse(topic: string, response: string): { fluency: number; confidence: number; logic: number; score: number; feedback: string } {
+export function evaluateGDResponse(_topic: string, response: string): { fluency: number; confidence: number; logic: number; score: number; feedback: string } {
   const wordCount = response.split(/\s+/).filter(Boolean).length;
   const sentences = response.split(/[.!?]+/).filter(Boolean).length;
   const hasStructure = /^(i believe|i think|according to|first|the|in my|from my)/i.test(response.trim());

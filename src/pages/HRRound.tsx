@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../store/AppContext';
 import { hrQuestions } from '../data/hrQuestions';
 import { apQuestions } from '../data/apQuestions';
-import type { APQuestion } from '../data/apQuestions';
 import { generateHRFeedback, generateFeedbackReport } from '../utils/aiEngine';
-import type { HRQuestion, HRFeedback } from '../types';
+import type { HRFeedback } from '../types';
 
 const difficultyColors = {
   easy: 'bg-green-100 text-green-700',
@@ -102,7 +101,7 @@ function ChatMessage({
 }
 
 export default function HRRound() {
-  const { state, dispatch } = useApp();
+  const { dispatch } = useApp();
 
   const [activeTab, setActiveTab] = useState<'general' | 'ap'>('general');
   const [filterCompany, setFilterCompany] = useState('All');
@@ -190,7 +189,7 @@ export default function HRRound() {
     setTimeout(() => {
       const feedback = generateHRFeedback(selectedQuestion.question, answerText);
       setCurrentFeedback(feedback);
-      const updatedHistory = [
+      const updatedHistory: { role: 'ai' | 'user'; content: string; feedback?: HRFeedback | null }[] = [
         ...historyWithAnswer,
         { role: 'ai', content: '', feedback },
       ];
@@ -317,7 +316,7 @@ export default function HRRound() {
                       </span>
                       <div className="flex-1 min-w-0">
                         <p className={`text-xs truncate ${isSelected ? 'font-semibold text-indigo-900' : 'text-gray-700'}`}>{q.question}</p>
-                        <span className={`inline-block mt-0.5 text-[10px] font-medium ${difficultyColors[q.difficulty]}`}>{q.difficulty}</span>
+                        <span className={`inline-block mt-0.5 text-[10px] font-medium ${difficultyColors[q.difficulty as keyof typeof difficultyColors]}`}>{q.difficulty}</span>
                       </div>
                     </button>
                   );
@@ -370,7 +369,7 @@ export default function HRRound() {
                               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
                                 {q.company}
                               </span>
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${difficultyColors[q.difficulty]}`}>
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${difficultyColors[q.difficulty as keyof typeof difficultyColors]}`}>
                                 {q.difficulty}
                               </span>
                               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">

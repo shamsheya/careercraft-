@@ -104,7 +104,6 @@ function createGDParticipants(users: any[]): GDParticipant[] {
     '👨‍🎓', '👩‍🎓', '👨‍🎓', '👩‍🎓',
     '👩‍🎓', '👨‍🎓',
   ];
-  const existingNames = new Set(users.map((u: any) => u.name));
   return names.map((name, i) => {
     const existing = users.find((u: any) => u.name === name);
     return {

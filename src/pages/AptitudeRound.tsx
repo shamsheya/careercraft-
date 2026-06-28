@@ -16,7 +16,7 @@ const catColors: Record<string, string> = {
 };
 
 export default function AptitudeRound() {
-  const { state, dispatch } = useApp();
+  const { dispatch } = useApp();
 
   const [activeCategory, setActiveCategory] = useState('quantitative');
   const [currentIndex, setCurrentIndex] = useState(0);

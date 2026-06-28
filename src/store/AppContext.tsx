@@ -1,5 +1,6 @@
-import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useReducer, ReactNode, useEffect, useCallback, useState } from 'react';
 import type { User, Badge, HRResponse, FeedbackReport, GDSession, DailyChallenge, ProgressData, LeaderboardEntry } from '../types';
+import { api, getStoredToken, setToken } from '../utils/api';
 
 interface AppState {
   user: User | null;
@@ -14,7 +15,8 @@ interface AppState {
 }
 
 type Action =
-  | { type: 'SET_USER'; payload: User }
+  | { type: 'SET_USER'; payload: User | null }
+  | { type: 'SET_USERS'; payload: User[] }
   | { type: 'ADD_HR_RESPONSE'; payload: HRResponse }
   | { type: 'ADD_FEEDBACK'; payload: FeedbackReport }
   | { type: 'ADD_GD_SESSION'; payload: GDSession }
@@ -24,33 +26,12 @@ type Action =
   | { type: 'UPDATE_STREAK'; payload: number }
   | { type: 'UPDATE_LEADERBOARD'; payload: LeaderboardEntry[] }
   | { type: 'UPDATE_PROGRESS'; payload: Partial<ProgressData> }
+  | { type: 'SET_PROGRESS'; payload: ProgressData }
   | { type: 'TOGGLE_DARK_MODE' };
 
-const defaultUser: User = {
-  id: 'user-1',
-  name: 'Demo Student',
-  email: 'student@college.edu',
-  year: 3,
-  college: 'National Institute of Technology',
-  avatar: '👨‍🎓',
-  streak: 0,
-  badges: [],
-  totalScore: 0,
-  joinedAt: new Date().toISOString(),
-};
-
 const initialState: AppState = {
-  user: defaultUser,
-  users: [
-    { ...defaultUser, id: 'user-1', name: 'Demo Student', year: 3, avatar: '👨‍🎓', totalScore: 0 },
-    { id: 'user-2', name: 'Priya Sharma', email: '', year: 3, college: 'IIT Delhi', avatar: '👩‍🎓', streak: 5, badges: [], totalScore: 1250, joinedAt: '' },
-    { id: 'user-3', name: 'Rahul Verma', email: '', year: 4, college: 'BITS Pilani', avatar: '👨‍🎓', streak: 3, badges: [], totalScore: 980, joinedAt: '' },
-    { id: 'user-4', name: 'Ananya Reddy', email: '', year: 2, college: 'VIT Vellore', avatar: '👩‍🎓', streak: 7, badges: [], totalScore: 750, joinedAt: '' },
-    { id: 'user-5', name: 'Arjun Mehta', email: '', year: 1, college: 'SRM Chennai', avatar: '👨‍🎓', streak: 2, badges: [], totalScore: 320, joinedAt: '' },
-    { id: 'user-6', name: 'Sneha Patel', email: '', year: 4, college: 'NIT Surat', avatar: '👩‍🎓', streak: 10, badges: [], totalScore: 1500, joinedAt: '' },
-    { id: 'user-7', name: 'Vikram Joshi', email: '', year: 1, college: 'DTU Delhi', avatar: '👨‍🎓', streak: 4, badges: [], totalScore: 410, joinedAt: '' },
-    { id: 'user-8', name: 'Kavya Nair', email: '', year: 2, college: 'COEP Pune', avatar: '👩‍🎓', streak: 6, badges: [], totalScore: 680, joinedAt: '' },
-  ],
+  user: null,
+  users: [],
   hrResponses: [],
   feedbackReports: [],
   gdSessions: [],
@@ -64,6 +45,8 @@ function appReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'SET_USER':
       return { ...state, user: action.payload };
+    case 'SET_USERS':
+      return { ...state, users: action.payload };
     case 'ADD_HR_RESPONSE':
       return { ...state, hrResponses: [...state.hrResponses, action.payload] };
     case 'ADD_FEEDBACK':
@@ -73,18 +56,12 @@ function appReducer(state: AppState, action: Action): AppState {
     case 'UPDATE_GD_SESSION':
       return { ...state, gdSessions: state.gdSessions.map(s => s.id === action.payload.id ? action.payload : s) };
     case 'COMPLETE_CHALLENGE':
-      return {
-        ...state,
-        dailyChallenges: state.dailyChallenges.map(c => c.id === action.payload ? { ...c, completed: true } : c),
-      };
+      return { ...state, dailyChallenges: state.dailyChallenges.map(c => c.id === action.payload ? { ...c, completed: true } : c) };
     case 'ADD_BADGE': {
       const user = state.user;
       if (!user) return state;
       const hasBadge = user.badges.some(b => b.id === action.payload.id);
-      return {
-        ...state,
-        user: { ...user, badges: hasBadge ? user.badges : [...user.badges, action.payload] },
-      };
+      return { ...state, user: { ...user, badges: hasBadge ? user.badges : [...user.badges, action.payload] } };
     }
     case 'UPDATE_STREAK': {
       if (!state.user) return state;
@@ -94,6 +71,8 @@ function appReducer(state: AppState, action: Action): AppState {
       return { ...state, leaderboard: action.payload };
     case 'UPDATE_PROGRESS':
       return { ...state, progress: { ...state.progress, ...action.payload } };
+    case 'SET_PROGRESS':
+      return { ...state, progress: action.payload };
     case 'TOGGLE_DARK_MODE':
       return { ...state, darkMode: !state.darkMode };
     default:
@@ -104,27 +83,70 @@ function appReducer(state: AppState, action: Action): AppState {
 interface AppContextType {
   state: AppState;
   dispatch: React.Dispatch<Action>;
+  isAuthLoading: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(appReducer, initialState, () => {
+  const [state, dispatch] = useReducer(appReducer, initialState);
+  const [initialized, setInitialized] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+  useEffect(() => {
     const saved = localStorage.getItem('careercraft_state');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        Object.keys(parsed).forEach(key => {
+          dispatch({ type: `SET_${key.toUpperCase()}` as any, payload: parsed[key] });
+        });
       } catch { /* ignore */ }
     }
-    return initialState;
-  });
+    setInitialized(true);
+  }, []);
+
+  const loadProfile = useCallback(async () => {
+    const token = getStoredToken();
+    if (!token) {
+      setIsAuthLoading(false);
+      return;
+    }
+    try {
+      const data = await api.getProfile();
+      dispatch({ type: 'SET_USER', payload: data.user as any });
+      if (data.progress) {
+        dispatch({ type: 'SET_PROGRESS', payload: data.progress });
+      }
+    } catch {
+      setToken(null);
+    }
+    setIsAuthLoading(false);
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem('careercraft_state', JSON.stringify(state));
-  }, [state]);
+    if (initialized) {
+      loadProfile();
+    }
+  }, [initialized, loadProfile]);
+
+  useEffect(() => {
+    if (initialized) {
+      localStorage.setItem('careercraft_state', JSON.stringify({
+        users: state.users,
+        hrResponses: state.hrResponses,
+        feedbackReports: state.feedbackReports,
+        gdSessions: state.gdSessions,
+        dailyChallenges: state.dailyChallenges,
+        leaderboard: state.leaderboard,
+        progress: state.progress,
+        darkMode: state.darkMode,
+      }));
+    }
+  }, [state, initialized]);
 
   return (
-    <AppContext.Provider value={{ state, dispatch }}>
+    <AppContext.Provider value={{ state, dispatch, isAuthLoading }}>
       {children}
     </AppContext.Provider>
   );

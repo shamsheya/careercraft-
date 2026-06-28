@@ -243,7 +243,7 @@ export default function DailyChallenges() {
               <span className="text-sm text-gray-500">day streak</span>
             </div>
             <div className="grid grid-cols-7 gap-2">
-              {last7Days.map((dateStr, idx) => {
+              {last7Days.map((dateStr) => {
                 const dayNum = new Date(dateStr).getDate();
                 const dayLabel = dayLabels[new Date(dateStr).getDay()];
                 const isToday = dateStr === todayStr;
