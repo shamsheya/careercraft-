@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: careercraft
+    env: node
+    buildCommand: npm install && npm run build && cd server && npm install
+    startCommand: cd server && node index.js
+    healthCheckPath: /api/health
