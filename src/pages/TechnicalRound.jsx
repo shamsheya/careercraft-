@@ -2,14 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../store/AppContext';
 import { technicalQuestions } from '../data/technicalQuestions';
 import { generateFeedbackReport } from '../utils/aiEngine';
-import type { TechnicalQuestion } from '../types';
 
 const LANGUAGES = [
   { key: 'java', label: 'Java', emoji: '☕', color: 'from-red-500 to-orange-500' },
   { key: 'python', label: 'Python', emoji: '🐍', color: 'from-blue-500 to-cyan-500' },
   { key: 'cpp', label: 'C++', emoji: '⚡', color: 'from-purple-500 to-pink-500' },
   { key: 'javascript', label: 'JavaScript', emoji: '🟡', color: 'from-yellow-500 to-amber-500' },
-] as const;
+];
 
 const TOPICS = [
   { key: 'dsa', label: 'Data Structures & Algorithms', emoji: '\u{1F4BB}' },
@@ -17,30 +16,28 @@ const TOPICS = [
   { key: 'os', label: 'Operating Systems', emoji: '\u2699\uFE0F' },
   { key: 'cn', label: 'Computer Networks', emoji: '\u{1F310}' },
   { key: 'oop', label: 'Object-Oriented Programming', emoji: '\u{1F537}' },
-] as const;
+];
 
-type Language = typeof LANGUAGES[number]['key'];
-
-const DIFFICULTY_COLORS: Record<string, string> = {
+const DIFFICULTY_COLORS = {
   easy: 'bg-green-100 text-green-700',
   medium: 'bg-yellow-100 text-yellow-700',
   hard: 'bg-red-100 text-red-700',
 };
 
-const DIFFICULTY_TIME: Record<string, number> = {
+const DIFFICULTY_TIME = {
   easy: 60,
   medium: 90,
   hard: 120,
 };
 
-const LANGUAGE_TOPICS: Record<Language, string[]> = {
+const LANGUAGE_TOPICS = {
   java: ['dsa', 'oop', 'dbms'],
   python: ['dsa', 'os', 'cn'],
   cpp: ['dsa', 'os', 'oop'],
   javascript: ['dsa', 'cn', 'dbms'],
 };
 
-function TimerBar({ timeLeft, total }: { timeLeft: number; total: number }) {
+function TimerBar({ timeLeft, total }) {
   const pct = total > 0 ? (timeLeft / total) * 100 : 0;
   const color = pct > 50 ? 'bg-green-500' : pct > 25 ? 'bg-yellow-500' : 'bg-red-500';
   return (
@@ -50,7 +47,7 @@ function TimerBar({ timeLeft, total }: { timeLeft: number; total: number }) {
   );
 }
 
-function AccuracyBar({ label, value, color }: { label: string; value: number; color: string }) {
+function AccuracyBar({ label, value, color }) {
   return (
     <div className="mb-1.5">
       <div className="flex justify-between text-xs mb-0.5">
@@ -64,28 +61,28 @@ function AccuracyBar({ label, value, color }: { label: string; value: number; co
   );
 }
 
-function getTimeForDifficulty(difficulty?: string): number {
+function getTimeForDifficulty(difficulty) {
   return DIFFICULTY_TIME[difficulty || 'easy'] || 60;
 }
 
 export default function TechnicalRound() {
   const { dispatch } = useApp();
 
-  const [activeLanguage, setActiveLanguage] = useState<Language>('java');
-  const [activeTopic, setActiveTopic] = useState<string>('dsa');
+  const [activeLanguage, setActiveLanguage] = useState('java');
+  const [activeTopic, setActiveTopic] = useState('dsa');
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [selectedOption, setSelectedOption] = useState(null);
   const [codingAnswer, setCodingAnswer] = useState('');
   const [answered, setAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [timerActive, setTimerActive] = useState(true);
-  const [topicResults, setTopicResults] = useState<Record<string, { correct: number; total: number; timeSpent: number; timeLimit: number }>>({});
+  const [topicResults, setTopicResults] = useState({});
   const [showReport, setShowReport] = useState(false);
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState(null);
 
   const availableTopics = LANGUAGE_TOPICS[activeLanguage];
-  const filteredQuestions = technicalQuestions.filter((q: TechnicalQuestion) => q.topic === activeTopic);
+  const filteredQuestions = technicalQuestions.filter(q => q.topic === activeTopic);
   const currentQuestion = filteredQuestions[questionIndex];
   const maxTime = currentQuestion ? getTimeForDifficulty(currentQuestion.difficulty) : 60;
 
@@ -137,7 +134,7 @@ export default function TechnicalRound() {
     if (currentQuestion) { resetQuestionState(); setTimeLeft(getTimeForDifficulty(currentQuestion.difficulty)); }
   }, [questionIndex, activeTopic]);
 
-  function handleOptionClick(index: number) {
+  function handleOptionClick(index) {
     if (answered || !currentQuestion || !currentQuestion.options) return;
     setSelectedOption(index);
     const correct = currentQuestion.options[index] === currentQuestion.correctAnswer;
@@ -344,7 +341,7 @@ export default function TechnicalRound() {
               <button onClick={() => setShowReport(false)} className="text-gray-400 hover:text-gray-600"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
-              {Object.entries(report.metrics).map(([key, val]: [string, any]) => (
+              {Object.entries(report.metrics).map(([key, val]) => (
                 <div key={key}>
                   <p className="text-xs text-gray-500 capitalize">{key.replace(/([A-Z])/g, ' $1')}</p>
                   <p className="text-xl font-bold text-gray-900">{val}%</p>

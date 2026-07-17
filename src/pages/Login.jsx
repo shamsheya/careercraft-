@@ -3,19 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../store/AppContext';
 import { api, setToken } from '../utils/api';
 import { validatePassword, validateEmail } from '../utils/hash';
-import type { User } from '../types';
 
 const AVATARS = ['🧑‍🎓', '👩‍🎓', '👨‍🎓', '🧑‍💻', '👩‍💻', '👨‍💻', '🌟', '🚀'];
 
 export default function Login() {
   const { dispatch } = useApp();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('login');
+  const [mode, setMode] = useState('login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [year, setYear] = useState<1 | 2 | 3 | 4>(1);
+  const [year, setYear] = useState(1);
   const [college, setCollege] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0]);
   const [error, setError] = useState('');
@@ -33,11 +32,11 @@ export default function Login() {
     api.login({ email, password })
       .then(data => {
         setToken(data.token);
-        const user: User = {
+        const user = {
           id: data.user.id,
           name: data.user.name,
           email: data.user.email,
-          year: data.user.year as 1 | 2 | 3 | 4,
+          year: data.user.year,
           college: data.user.college,
           avatar: data.user.avatar,
           streak: data.user.streak || 0,
@@ -66,11 +65,11 @@ export default function Login() {
     api.register({ name, email, password, year, college, avatar: selectedAvatar })
       .then(data => {
         setToken(data.token);
-        const user: User = {
+        const user = {
           id: data.user.id,
           name: data.user.name,
           email: data.user.email,
-          year: data.user.year as 1 | 2 | 3 | 4,
+          year: data.user.year,
           college: data.user.college,
           avatar: data.user.avatar,
           streak: data.user.streak || 0,
@@ -191,7 +190,7 @@ export default function Login() {
                 <div className="relative flex justify-center"><span className="px-3 bg-[#1a1040] text-indigo-400 text-xs">or</span></div>
               </div>
               <button onClick={() => {
-                const demoUser: User = {
+                const demoUser = {
                   id: 'guest-' + Date.now(), name: 'Guest Explorer', email: 'guest@demo.com',
                   year: 3, college: 'Demo College', avatar: '🚀',
                   streak: 0, badges: [], totalScore: 0, joinedAt: new Date().toISOString(),
@@ -238,7 +237,7 @@ export default function Login() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-indigo-200 mb-1">Year of Study</label>
-                  <select value={year} onChange={e => setYear(Number(e.target.value) as 1|2|3|4)} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-neon-pink outline-none transition-all">
+                  <select value={year} onChange={e => setYear(Number(e.target.value))} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-neon-pink outline-none transition-all">
                     <option value={1} className="bg-gray-900">1st Year</option>
                     <option value={2} className="bg-gray-900">2nd Year</option>
                     <option value={3} className="bg-gray-900">3rd Year</option>

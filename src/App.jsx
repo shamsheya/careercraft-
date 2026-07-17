@@ -13,7 +13,7 @@ import InterviewTips from './pages/InterviewTips';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children }) {
   const { state, isAuthLoading } = useApp();
   if (isAuthLoading) {
     return (

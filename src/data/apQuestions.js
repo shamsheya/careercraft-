@@ -1,13 +1,4 @@
-export interface APQuestion {
-  id: string;
-  question: string;
-  category: string;
-  company: string;
-  tips: string[];
-  difficulty: 'easy' | 'medium' | 'hard';
-}
-
-export const apQuestions: APQuestion[] = [
+export const apQuestions = [
   {
     id: 'ap-001',
     question: 'Why do you want to work in Hyderabad specifically?',

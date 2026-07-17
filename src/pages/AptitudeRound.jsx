@@ -9,7 +9,7 @@ const categories = [
   { key: 'verbal', label: 'Verbal', emoji: '\u{1F4DD}' },
 ];
 
-const catColors: Record<string, string> = {
+const catColors = {
   quantitative: 'from-blue-500 to-blue-600',
   logical: 'from-purple-500 to-purple-600',
   verbal: 'from-emerald-500 to-emerald-600',
@@ -20,8 +20,8 @@ export default function AptitudeRound() {
 
   const [activeCategory, setActiveCategory] = useState('quantitative');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [answerState, setAnswerState] = useState<'idle' | 'correct' | 'incorrect'>('idle');
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [answerState, setAnswerState] = useState('idle');
   const [score, setScore] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [totalAnswered, setTotalAnswered] = useState(0);
@@ -30,7 +30,7 @@ export default function AptitudeRound() {
   const [startTime, setStartTime] = useState(0);
   const [totalTimeSpent, setTotalTimeSpent] = useState(0);
   const [showReport, setShowReport] = useState(false);
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState(null);
   const [sessionDone, setSessionDone] = useState(false);
 
   const categoryQuestions = aptitudeQuestions.filter(q => q.category === activeCategory);
@@ -72,7 +72,7 @@ export default function AptitudeRound() {
     return () => clearInterval(timer);
   }, [timerActive, timeLeft]);
 
-  const handleOptionSelect = useCallback((optIndex: number) => {
+  const handleOptionSelect = useCallback((optIndex) => {
     if (answerState !== 'idle' || !question) return;
     setTimerActive(false);
     setSelectedOption(optIndex);
@@ -234,7 +234,7 @@ export default function AptitudeRound() {
               <div>
                 <p className="font-semibold text-green-600 mb-1">Strengths</p>
                 <ul className="space-y-1">
-                  {report.strengths.map((s: string, i: number) => (
+                  {report.strengths.map((s, i) => (
                     <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
                       <svg className="w-3.5 h-3.5 mt-0.5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       {s}
@@ -245,7 +245,7 @@ export default function AptitudeRound() {
               <div>
                 <p className="font-semibold text-red-600 mb-1">Weaknesses</p>
                 <ul className="space-y-1">
-                  {report.weaknesses.map((s: string, i: number) => (
+                  {report.weaknesses.map((s, i) => (
                     <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
                       <svg className="w-3.5 h-3.5 mt-0.5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                       {s}
@@ -256,7 +256,7 @@ export default function AptitudeRound() {
               <div>
                 <p className="font-semibold text-indigo-600 mb-1">Suggestions</p>
                 <ul className="space-y-1">
-                  {report.suggestions.map((s: string, i: number) => (
+                  {report.suggestions.map((s, i) => (
                     <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
                       <svg className="w-3.5 h-3.5 mt-0.5 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       {s}

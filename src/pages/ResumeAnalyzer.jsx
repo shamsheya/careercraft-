@@ -1,10 +1,5 @@
 import { useState } from 'react';
 
-interface UploadedFile {
-  name: string;
-  size: number;
-}
-
 const matchedKeywords = ['React', 'TypeScript', 'Python', 'SQL', 'Java', 'Node.js', 'CSS', 'Git'];
 const missingKeywords = ['Docker', 'AWS', 'GraphQL', 'Kubernetes', 'Redis'];
 
@@ -65,7 +60,7 @@ Tools: Git, Docker, AWS, Figma
 Education
 B.Tech in Computer Science | University Name | 2015–2019`;
 
-function CircularProgress({ percentage, size = 120, strokeWidth = 8 }: { percentage: number; size?: number; strokeWidth?: number }) {
+function CircularProgress({ percentage, size = 120, strokeWidth = 8 }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percentage / 100) * circumference;
@@ -100,7 +95,7 @@ function CircularProgress({ percentage, size = 120, strokeWidth = 8 }: { percent
   );
 }
 
-function RatingBar({ label, score, color }: { label: string; score: number; color: string }) {
+function RatingBar({ label, score, color }) {
   return (
     <div>
       <div className="flex justify-between mb-1">
@@ -115,13 +110,13 @@ function RatingBar({ label, score, color }: { label: string; score: number; colo
 }
 
 export default function ResumeAnalyzer() {
-  const [file, setFile] = useState<UploadedFile | null>(null);
+  const [file, setFile] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
   const [showSample, setShowSample] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
-  const handleFileDrop = (e: React.DragEvent) => {
+  const handleFileDrop = (e) => {
     e.preventDefault();
     setDragOver(false);
     const dropped = e.dataTransfer.files[0];
@@ -130,7 +125,7 @@ export default function ResumeAnalyzer() {
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e) => {
     const selected = e.target.files?.[0];
     if (selected) {
       setFile({ name: selected.name, size: selected.size });

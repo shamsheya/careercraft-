@@ -1,13 +1,4 @@
-export interface HRQuestion {
-  id: string;
-  question: string;
-  category: string;
-  company: string;
-  tips: string[];
-  difficulty: 'easy' | 'medium' | 'hard';
-}
-
-export const hrQuestions: HRQuestion[] = [
+export const hrQuestions = [
   {
     id: 'hr-001',
     question: 'Tell me about yourself.',

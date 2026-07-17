@@ -1,7 +1,4 @@
-import type { TechnicalQuestion } from '../types';
-
-export const technicalQuestions: TechnicalQuestion[] = [
-  // ======================== DSA (6 questions) ========================
+export const technicalQuestions = [
   {
     id: 'dsa-001',
     topic: 'dsa',
@@ -38,7 +35,7 @@ export const technicalQuestions: TechnicalQuestion[] = [
     type: 'coding',
     difficulty: 'medium',
     question: 'What is the output of this function for arr = [2, 4, 6, 8, 10] and target = 6?',
-    codeSnippet: `function binarySearch(arr: number[], target: number): number {
+    codeSnippet: `function binarySearch(arr, target) {
   let left = 0, right = arr.length - 1;
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
@@ -58,7 +55,7 @@ export const technicalQuestions: TechnicalQuestion[] = [
     type: 'coding',
     difficulty: 'hard',
     question: 'What is the output of this function for nums = [10, 9, 2, 5, 3, 7, 101, 18]?',
-    codeSnippet: `function lengthOfLIS(nums: number[]): number {
+    codeSnippet: `function lengthOfLIS(nums) {
   const dp = new Array(nums.length).fill(1);
   for (let i = 1; i < nums.length; i++) {
     for (let j = 0; j < i; j++) {
@@ -83,8 +80,6 @@ export const technicalQuestions: TechnicalQuestion[] = [
     correctAnswer: 'Merge Sort',
     explanation: 'Merge Sort guarantees O(n log n) in all cases, while Quick Sort degrades to O(n^2) in the worst case.',
   },
-
-  // ======================== DBMS (6 questions) ========================
   {
     id: 'dbms-001',
     topic: 'dbms',
@@ -159,8 +154,6 @@ COMMIT;`,
     explanation: 'Serializable is the highest isolation level. It ensures complete isolation by preventing dirty reads, non-repeatable reads, and phantom reads, but at the cost of concurrency.',
     hints: ['There are three common concurrency problems in transactions.', 'Serializable prevents all three.'],
   },
-
-  // ======================== OS (6 questions) ========================
   {
     id: 'os-001',
     topic: 'os',
@@ -203,7 +196,7 @@ COMMIT;`,
     difficulty: 'medium',
     question: 'What is the output of this program simulating a producer-consumer problem?',
     codeSnippet: `const semaphore = { empty: 2, full: 0, mutex: 1 };
-const buffer: number[] = [];
+const buffer = [];
 
 function producer() {
   semaphore.empty--;
@@ -254,8 +247,6 @@ console.log(buffer.length);`,
     correctAnswer: 'Threads share the same address space; processes have separate address spaces',
     explanation: 'Threads within the same process share memory and resources, while each process has its own isolated address space.',
   },
-
-  // ======================== CN (6 questions) ========================
   {
     id: 'cn-001',
     topic: 'cn',
@@ -324,8 +315,6 @@ Content-Type: text/html`,
     correctAnswer: 'A Denial of Service attack that exploits the TCP three-way handshake',
     explanation: 'SYN flood sends many SYN packets without completing the handshake, exhausting server resources and causing denial of service.',
   },
-
-  // ======================== OOP (6 questions) ========================
   {
     id: 'oop-001',
     topic: 'oop',
@@ -362,19 +351,19 @@ Content-Type: text/html`,
     type: 'coding',
     difficulty: 'medium',
     question: 'What is the output of this code demonstrating polymorphism?',
-    codeSnippet: `abstract class Animal {
-  abstract speak(): string;
+    codeSnippet: `class Animal {
+  speak() { return ""; }
 }
 
 class Dog extends Animal {
-  speak(): string { return "Woof"; }
+  speak() { return "Woof"; }
 }
 
 class Cat extends Animal {
-  speak(): string { return "Meow"; }
+  speak() { return "Meow"; }
 }
 
-const animals: Animal[] = [new Dog(), new Cat()];
+const animals = [new Dog(), new Cat()];
 console.log(animals.map(a => a.speak()).join(", "));`,
     correctAnswer: 'Woof, Meow',
     explanation: 'Each subclass overrides the speak() method. When called polymorphically, the correct implementation is invoked based on the actual runtime type.',
@@ -387,21 +376,23 @@ console.log(animals.map(a => a.speak()).join(", "));`,
     difficulty: 'hard',
     question: 'What is the output of this code about encapsulation and access modifiers?',
     codeSnippet: `class BankAccount {
-  private balance: number = 0;
-
-  deposit(amount: number): void {
-    if (amount > 0) this.balance += amount;
+  constructor() {
+    this._balance = 0;
   }
 
-  withdraw(amount: number): boolean {
-    if (amount > 0 && amount <= this.balance) {
-      this.balance -= amount;
+  deposit(amount) {
+    if (amount > 0) this._balance += amount;
+  }
+
+  withdraw(amount) {
+    if (amount > 0 && amount <= this._balance) {
+      this._balance -= amount;
       return true;
     }
     return false;
   }
 
-  getBalance(): number { return this.balance; }
+  getBalance() { return this._balance; }
 }
 
 const acc = new BankAccount();

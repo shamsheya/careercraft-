@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useApp } from '../store/AppContext';
 import { evaluateGDResponse, generateFeedbackReport } from '../utils/aiEngine';
-import type { GDSession, GDTeam, GDParticipant, GDMessage } from '../types';
 
 const topics = [
   { id: 'ai-jobs', title: 'Impact of AI on Jobs', emoji: '🤖', color: '#6366f1' },
@@ -12,7 +11,7 @@ const topics = [
   { id: 'gender-equality', title: 'Gender Equality in Workplace', emoji: '⚖️', color: '#14b8a6' },
 ];
 
-const topicContent: Record<string, Record<string, string>> = {
+const topicContent = {
   'Impact of AI on Jobs': {
     'p-0': 'I believe AI will fundamentally reshape our workforce, but we must not fear it. Automation has historically displaced workers temporarily while creating entirely new categories of employment. The key lies in massive reskilling initiatives and educational reform to prepare people for an AI-augmented future. We need proactive policies rather than reactive panic.',
     'p-1': 'While AI does threaten routine jobs, I see it as a powerful tool for augmentation rather than pure replacement. In healthcare, AI assists doctors with diagnosis; in law, it helps with document review. The human element of empathy, creativity, and ethical judgment cannot be automated. We should focus on human-AI collaboration models.',
@@ -93,7 +92,7 @@ const roundTurns = [
   { round: 3, label: 'Closing Remarks', participants: ['p-8', 'p-9'] },
 ];
 
-function createGDParticipants(users: any[]): GDParticipant[] {
+function createGDParticipants(users) {
   const names = [
     'Demo Student', 'Priya Sharma', 'Rahul Verma', 'Ananya Reddy',
     'Arjun Mehta', 'Sneha Patel', 'Vikram Joshi', 'Kavya Nair',
@@ -105,7 +104,7 @@ function createGDParticipants(users: any[]): GDParticipant[] {
     '👩‍🎓', '👨‍🎓',
   ];
   return names.map((name, i) => {
-    const existing = users.find((u: any) => u.name === name);
+    const existing = users.find(u => u.name === name);
     return {
       id: `p-${i}`,
       name,
@@ -119,7 +118,7 @@ function createGDParticipants(users: any[]): GDParticipant[] {
   });
 }
 
-const s: Record<string, React.CSSProperties> = {
+const styles = {
   container: {
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
@@ -200,7 +199,7 @@ const s: Record<string, React.CSSProperties> = {
   avatar: {
     fontSize: '28px',
     width: '40px',
-    textAlign: 'center' as const,
+    textAlign: 'center',
   },
   participantName: {
     fontSize: '14px',
@@ -285,7 +284,7 @@ const s: Record<string, React.CSSProperties> = {
     fontWeight: '700',
     padding: '2px 10px',
     borderRadius: '20px',
-    textTransform: 'uppercase' as const,
+    textTransform: 'uppercase',
     letterSpacing: '0.5px',
   },
   messageContent: {
@@ -311,12 +310,12 @@ const s: Record<string, React.CSSProperties> = {
     background: '#0f172a',
     borderRadius: '8px',
     padding: '10px',
-    textAlign: 'center' as const,
+    textAlign: 'center',
   },
   scoreLabel: {
     fontSize: '11px',
     color: '#64748b',
-    textTransform: 'uppercase' as const,
+    textTransform: 'uppercase',
     letterSpacing: '0.5px',
   },
   scoreValue: {
@@ -328,7 +327,7 @@ const s: Record<string, React.CSSProperties> = {
     background: '#1e293b',
     borderRadius: '16px',
     padding: '16px',
-    position: 'sticky' as const,
+    position: 'sticky',
     top: '16px',
     alignSelf: 'start',
   },
@@ -340,17 +339,17 @@ const s: Record<string, React.CSSProperties> = {
   },
   scoreboardTable: {
     width: '100%',
-    borderCollapse: 'collapse' as const,
+    borderCollapse: 'collapse',
     fontSize: '12px',
   },
   th: {
-    textAlign: 'left' as const,
+    textAlign: 'left',
     padding: '6px 4px',
     borderBottom: '1px solid #334155',
     color: '#64748b',
     fontWeight: '600',
     fontSize: '10px',
-    textTransform: 'uppercase' as const,
+    textTransform: 'uppercase',
     letterSpacing: '0.5px',
   },
   td: {
@@ -452,7 +451,7 @@ const s: Record<string, React.CSSProperties> = {
     width: '80px',
     fontSize: '13px',
     fontWeight: '600',
-    textAlign: 'right' as const,
+    textAlign: 'right',
   },
   barTrack: {
     flex: '1',
@@ -500,22 +499,20 @@ const s: Record<string, React.CSSProperties> = {
   },
 };
 
-const styles: Record<string, React.CSSProperties> = s;
-
 export default function GDRound() {
   const { state } = useApp();
-  const [topic, setTopic] = useState<string | null>(null);
-  const [phase, setPhase] = useState<'select' | 'teams' | 'simulating' | 'finished'>('select');
-  const [session, setSession] = useState<GDSession | null>(null);
+  const [topic, setTopic] = useState(null);
+  const [phase, setPhase] = useState('select');
+  const [session, setSession] = useState(null);
   const [currentMsgIdx, setCurrentMsgIdx] = useState(-1);
-  const [showScoreFor, setShowScoreFor] = useState<number | null>(null);
-  const [report, setReport] = useState<any>(null);
+  const [showScoreFor, setShowScoreFor] = useState(null);
+  const [report, setReport] = useState(null);
 
   const participants = useMemo(() => createGDParticipants(state.users), []);
   const orderedParticipants = useMemo(() => {
     const teamA = participants.slice(0, 5);
     const teamB = participants.slice(5, 10);
-    const order: GDParticipant[] = [];
+    const order = [];
     for (let i = 0; i < 5; i++) {
       order.push(teamA[i], teamB[i]);
     }
@@ -525,20 +522,20 @@ export default function GDRound() {
   const teamA = useMemo(() => participants.slice(0, 5), [participants]);
   const teamB = useMemo(() => participants.slice(5, 10), [participants]);
 
-  const getTeamColor = useCallback((participantId: string) => {
+  const getTeamColor = useCallback((participantId) => {
     const idx = participants.findIndex(p => p.id === participantId);
     return idx < 5 ? '#2563eb' : '#dc2626';
   }, [participants]);
 
-  const getTeamName = useCallback((participantId: string) => {
+  const getTeamName = useCallback((participantId) => {
     const idx = participants.findIndex(p => p.id === participantId);
     return idx < 5 ? 'Team A' : 'Team B';
   }, [participants]);
 
-  function handleSelectTopic(topicTitle: string) {
+  function handleSelectTopic(topicTitle) {
     setTopic(topicTitle);
     const gdParticipants = participants.map(p => ({ ...p }));
-    const newSession: GDSession = {
+    const newSession = {
       id: `gd-${Date.now()}`,
       topic: topicTitle,
       teams: [
@@ -574,16 +571,16 @@ export default function GDRound() {
     }
 
     const participant = orderedParticipants[currentMsgIdx];
-    const responses = topicContent[topic!];
+    const responses = topicContent[topic];
     const content = responses[participant.id] || 'Interesting topic. I have mixed views on this. Both sides have valid arguments and we need to find common ground through constructive dialogue.';
 
     if (showScoreFor === null) {
       const msgTimer = setTimeout(() => {
         setShowScoreFor(currentMsgIdx);
-        const evalResult = evaluateGDResponse(topic!, content);
+        const evalResult = evaluateGDResponse(topic, content);
         setSession(prev => {
           if (!prev) return prev;
-          const newMessage: GDMessage = {
+          const newMessage = {
             participantId: participant.id,
             participantName: participant.name,
             teamName: getTeamName(participant.id),
@@ -637,7 +634,7 @@ export default function GDRound() {
     return [...allParticipants].sort((a, b) => b.score - a.score);
   }, [allParticipants]);
 
-  function calcTeamAverage(team: GDTeam) {
+  function calcTeamAverage(team) {
     const total = team.members.reduce((sum, m) => sum + m.score, 0);
     return total / team.members.length;
   }
@@ -789,7 +786,7 @@ export default function GDRound() {
 
             {session?.messages.slice().reverse().map((msg, i) => {
               const isLatest = i === 0 && phase === 'simulating';
-              const scoreData = evaluateGDResponse(topic!, msg.content);
+              const scoreData = evaluateGDResponse(topic, msg.content);
               return (
                 <div
                   key={i}
@@ -1032,19 +1029,19 @@ export default function GDRound() {
               </div>
               <div style={{ marginBottom: '12px' }}>
                 <div style={{ fontWeight: '600', color: '#34d399', marginBottom: '6px' }}>✅ Strengths</div>
-                {report.strengths.map((s: string, i: number) => (
+                {report.strengths.map((s, i) => (
                   <div key={i} style={{ fontSize: '13px', color: '#94a3b8', padding: '4px 0' }}>• {s}</div>
                 ))}
               </div>
               <div style={{ marginBottom: '12px' }}>
                 <div style={{ fontWeight: '600', color: '#f87171', marginBottom: '6px' }}>⚠️ Areas to Improve</div>
-                {report.weaknesses.map((w: string, i: number) => (
+                {report.weaknesses.map((w, i) => (
                   <div key={i} style={{ fontSize: '13px', color: '#94a3b8', padding: '4px 0' }}>• {w}</div>
                 ))}
               </div>
               <div>
                 <div style={{ fontWeight: '600', color: '#60a5fa', marginBottom: '6px' }}>💡 Suggestions</div>
-                {report.suggestions.map((s: string, i: number) => (
+                {report.suggestions.map((s, i) => (
                   <div key={i} style={{ fontSize: '13px', color: '#94a3b8', padding: '4px 0' }}>• {s}</div>
                 ))}
               </div>

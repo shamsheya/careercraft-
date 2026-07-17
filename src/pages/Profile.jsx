@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../store/AppContext';
 import Confetti from '../components/Confetti';
 
-const badgeColors: Record<string, string> = {
+const badgeColors = {
   'Number Ninja': 'from-cyan-400 to-cyan-500',
   'Interview Ace': 'from-purple-400 to-purple-500',
   'Debate Champion': 'from-teal-400 to-teal-500',

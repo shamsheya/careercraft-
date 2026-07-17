@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../store/AppContext';
-import type { DailyChallenge, Badge } from '../types';
 
 const challengeTemplates = [
   {
-    type: 'aptitude' as const,
+    type: 'aptitude',
     title: 'Aptitude Warm-up',
     description: 'Solve 5 aptitude questions to sharpen your quantitative skills',
     tasks: [
@@ -15,7 +14,7 @@ const challengeTemplates = [
     reward: { badge: 'Number Ninja', xp: 50 },
   },
   {
-    type: 'hr' as const,
+    type: 'hr',
     title: 'HR Interview Practice',
     description: 'Answer 3 HR questions with AI feedback',
     tasks: [
@@ -26,7 +25,7 @@ const challengeTemplates = [
     reward: { badge: 'Interview Ace', xp: 75 },
   },
   {
-    type: 'gd' as const,
+    type: 'gd',
     title: 'Group Discussion Simulation',
     description: 'Complete a GD simulation on a current affairs topic',
     tasks: [
@@ -37,7 +36,7 @@ const challengeTemplates = [
     reward: { badge: 'Debate Champion', xp: 100 },
   },
   {
-    type: 'technical' as const,
+    type: 'technical',
     title: 'Technical MCQ Practice',
     description: 'Practice technical MCQs from DSA, DBMS, OS, and CN',
     tasks: [
@@ -49,7 +48,7 @@ const challengeTemplates = [
   },
 ];
 
-function generateDailyChallenge(): DailyChallenge {
+function generateDailyChallenge() {
   const template = challengeTemplates[Math.floor(Math.random() * challengeTemplates.length)];
   return {
     id: `challenge-${Date.now()}`,
@@ -63,14 +62,14 @@ function generateDailyChallenge(): DailyChallenge {
   };
 }
 
-const challengeIcons: Record<string, string> = {
+const challengeIcons = {
   aptitude: '\u{1F9EE}',
   hr: '\u{1F5E3}\uFE0F',
   gd: '\u{1F465}',
   technical: '\u{1F4BB}',
 };
 
-const challengeColors: Record<string, string> = {
+const challengeColors = {
   aptitude: 'from-orange-400 to-orange-500',
   hr: 'from-purple-400 to-purple-500',
   gd: 'from-teal-400 to-teal-500',
@@ -82,7 +81,7 @@ export default function DailyChallenges() {
   const { user, dailyChallenges } = state;
 
   const todayStr = new Date().toISOString().split('T')[0];
-  const [todayChallenge, setTodayChallenge] = useState<DailyChallenge | null>(null);
+  const [todayChallenge, setTodayChallenge] = useState(null);
 
   useEffect(() => {
     const existing = dailyChallenges.find(c => c.date === todayStr);
@@ -94,7 +93,7 @@ export default function DailyChallenges() {
     }
   }, [dailyChallenges, todayStr]);
 
-  const handleToggleTask = (taskId: string) => {
+  const handleToggleTask = (taskId) => {
     if (!todayChallenge) return;
     const updatedTasks = todayChallenge.tasks.map(t =>
       t.id === taskId ? { ...t, completed: !t.completed } : t
@@ -105,7 +104,7 @@ export default function DailyChallenges() {
     dispatch({ type: 'COMPLETE_CHALLENGE', payload: todayChallenge.id });
 
     if (allDone) {
-      const newBadge: Badge = {
+      const newBadge = {
         id: `badge-streak-${Date.now()}`,
         name: 'Daily Streak Maintainer',
         description: 'Completed all tasks for today\'s challenge',

@@ -1,7 +1,4 @@
-import type { AptitudeQuestion } from '../types';
-
-export const aptitudeQuestions: AptitudeQuestion[] = [
-  // ── Quantitative (10 questions) ──
+export const aptitudeQuestions = [
   {
     id: 'q-001',
     category: 'quantitative',
@@ -102,8 +99,6 @@ export const aptitudeQuestions: AptitudeQuestion[] = [
     explanation: '5x - 2x = 15 - 3 → 3x = 12 → x = 4.',
     timeLimit: 30,
   },
-
-  // ── Logical (10 questions) ──
   {
     id: 'l-001',
     category: 'logical',
@@ -204,8 +199,6 @@ export const aptitudeQuestions: AptitudeQuestion[] = [
     explanation: 'The statement clearly assumes there is a minimum age for voting (II). It does not assume all adults vote (I).',
     timeLimit: 45,
   },
-
-  // ── Verbal (10 questions) ──
   {
     id: 'v-001',
     category: 'verbal',
@@ -258,7 +251,7 @@ export const aptitudeQuestions: AptitudeQuestion[] = [
     question: 'Rearrange to form a meaningful sentence: P: is a threat to / Q: global warming / R: rising sea levels / S: caused by',
     options: ['QSPR', 'QPRS', 'SRPQ', 'PRSQ'],
     correctAnswer: 0,
-    explanation: 'The correct sequence is Q-S-P-R: "Global warming is a threat to rising sea levels caused by" — wait, recheck. QSPR = "Global warming caused by rising sea levels is a threat to". That reads properly.',
+    explanation: 'QSPR = "Global warming caused by rising sea levels is a threat to". That reads properly.',
     timeLimit: 75,
   },
   {

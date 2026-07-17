@@ -14,7 +14,7 @@ const navItems = [
   { path: '/tips', label: 'Interview Tips', icon: '\u{1F4A1}' },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }) {
   const { state, dispatch } = useApp();
   const user = state.user;
   const navigate = useNavigate();
@@ -119,7 +119,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             👤 Profile
                           </button>
                           <button
-                            onClick={() => { localStorage.removeItem('careercraft_state'); dispatch({ type: 'SET_USER', payload: null as any }); setShowUserMenu(false); navigate('/login'); }}
+                            onClick={() => { localStorage.removeItem('careercraft_state'); dispatch({ type: 'SET_USER', payload: null }); setShowUserMenu(false); navigate('/login'); }}
                             className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                           >
                             🚪 Logout

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../store/AppContext';
 import Confetti from '../components/Confetti';
 
-function CircularProgress({ percentage, size = 80, strokeWidth = 6 }: { percentage: number; size?: number; strokeWidth?: number }) {
+function CircularProgress({ percentage, size = 80, strokeWidth = 6 }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percentage / 100) * circumference;
@@ -103,7 +103,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {progressCards.map((card) => {
-          const data = progress[card.key as keyof typeof progress];
+          const data = progress[card.key];
           const avgScore = Math.round(data.averageScore);
           return (
             <Link key={card.key} to={card.link} className="card group hover:-translate-y-1 transition-all duration-300">

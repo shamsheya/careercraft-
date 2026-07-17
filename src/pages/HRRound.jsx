@@ -3,7 +3,6 @@ import { useApp } from '../store/AppContext';
 import { hrQuestions } from '../data/hrQuestions';
 import { apQuestions } from '../data/apQuestions';
 import { generateHRFeedback, generateFeedbackReport } from '../utils/aiEngine';
-import type { HRFeedback } from '../types';
 
 const difficultyColors = {
   easy: 'bg-green-100 text-green-700',
@@ -11,7 +10,7 @@ const difficultyColors = {
   hard: 'bg-red-100 text-red-700',
 };
 
-function ScoreBar({ label, value, color }: { label: string; value: number; color: string }) {
+function ScoreBar({ label, value, color }) {
   return (
     <div className="mb-2">
       <div className="flex justify-between text-xs mb-1">
@@ -28,15 +27,7 @@ function ScoreBar({ label, value, color }: { label: string; value: number; color
   );
 }
 
-function ChatMessage({
-  role,
-  content,
-  feedback,
-}: {
-  role: 'ai' | 'user';
-  content: string;
-  feedback?: HRFeedback | null;
-}) {
+function ChatMessage({ role, content, feedback }) {
   const isAi = role === 'ai';
   return (
     <div className={`flex ${isAi ? 'justify-start' : 'justify-end'} mb-4`}>
@@ -103,12 +94,12 @@ function ChatMessage({
 export default function HRRound() {
   const { dispatch } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'general' | 'ap'>('general');
+  const [activeTab, setActiveTab] = useState('general');
   const [filterCompany, setFilterCompany] = useState('All');
   const [filterCategory, setFilterCategory] = useState('All');
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState(null);
 
-  const [activeQuestions, setActiveQuestions] = useState<any[]>([]);
+  const [activeQuestions, setActiveQuestions] = useState([]);
 
   useEffect(() => {
     const pool = activeTab === 'general' ? hrQuestions : apQuestions;
@@ -116,6 +107,7 @@ export default function HRRound() {
     const count = Math.min(pool.length, Math.floor(Math.random() * 6) + 8);
     setActiveQuestions(shuffled.slice(0, count));
   }, [activeTab]);
+
   const activeCompanies = activeTab === 'general'
     ? Array.from(new Set(hrQuestions.map(q => q.company))).sort()
     : Array.from(new Set(apQuestions.map(q => q.company))).sort();
@@ -125,14 +117,20 @@ export default function HRRound() {
 
   const [selectedQuestionId, setSelectedQuestionId] = useState(activeQuestions[0]?.id || '');
   const [userAnswer, setUserAnswer] = useState('');
-  const [currentFeedback, setCurrentFeedback] = useState<HRFeedback | null>(null);
-  const [chatHistory, setChatHistory] = useState<{ role: 'ai' | 'user'; content: string; feedback?: HRFeedback | null }[]>([]);
+  const [currentFeedback, setCurrentFeedback] = useState(null);
+  const [chatHistory, setChatHistory] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [completedIds, setCompletedIds] = useState(new Set());
   const [sessionStats, setSessionStats] = useState({ totalAnswered: 0, totalClarity: 0, totalConfidence: 0, totalRelevance: 0, bestScore: 0 });
 
+  useEffect(() => {
+    if (activeQuestions.length > 0 && !selectedQuestionId) {
+      setSelectedQuestionId(activeQuestions[0].id);
+    }
+  }, [activeQuestions, selectedQuestionId]);
+
   const [showReport, setShowReport] = useState(false);
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState(null);
 
   const selectedQuestion = (activeTab === 'general' ? hrQuestions : apQuestions).find(q => q.id === selectedQuestionId);
 
@@ -140,7 +138,7 @@ export default function HRRound() {
     if (selectedQuestion && chatHistory.length === 0) {
       const questionText = 'question' in selectedQuestion
         ? selectedQuestion.question
-        : (selectedQuestion as any).question || '';
+        : selectedQuestion.question || '';
       setChatHistory([{ role: 'ai', content: questionText }]);
     }
   }, [selectedQuestionId, activeTab]);
@@ -151,7 +149,7 @@ export default function HRRound() {
     return matchCompany && matchCategory;
   });
 
-  const handleSelectQuestion = (id: string) => {
+  const handleSelectQuestion = (id) => {
     setSelectedQuestionId(id);
     setUserAnswer('');
     setCurrentFeedback(null);
@@ -161,7 +159,7 @@ export default function HRRound() {
     setChatHistory(q ? [{ role: 'ai', content: questionText }] : []);
   };
 
-  const handleTabChange = (tab: 'general' | 'ap') => {
+  const handleTabChange = (tab) => {
     setActiveTab(tab);
     setSelectedQuestionId('');
     setUserAnswer('');
@@ -178,7 +176,7 @@ export default function HRRound() {
   const handleSubmitAnswer = () => {
     if (!userAnswer.trim() || !selectedQuestion || isGenerating) return;
     setIsGenerating(true);
-    const historyWithAnswer: { role: 'ai' | 'user'; content: string; feedback?: HRFeedback | null }[] = [
+    const historyWithAnswer = [
       ...chatHistory,
       { role: 'user', content: userAnswer },
     ];
@@ -189,7 +187,7 @@ export default function HRRound() {
     setTimeout(() => {
       const feedback = generateHRFeedback(selectedQuestion.question, answerText);
       setCurrentFeedback(feedback);
-      const updatedHistory: { role: 'ai' | 'user'; content: string; feedback?: HRFeedback | null }[] = [
+      const updatedHistory = [
         ...historyWithAnswer,
         { role: 'ai', content: '', feedback },
       ];
@@ -292,7 +290,7 @@ export default function HRRound() {
                 <p className="text-xs text-gray-500 mt-0.5">{completedIds.size} of {activeQuestions.length} completed</p>
               </div>
               <div className="overflow-y-auto max-h-[600px]">
-                {activeQuestions.map((q: any, idx: number) => {
+                {activeQuestions.map((q, idx) => {
                   const isSelected = q.id === selectedQuestionId;
                   const isCompleted = completedIds.has(q.id);
                   return (
@@ -316,7 +314,7 @@ export default function HRRound() {
                       </span>
                       <div className="flex-1 min-w-0">
                         <p className={`text-xs truncate ${isSelected ? 'font-semibold text-indigo-900' : 'text-gray-700'}`}>{q.question}</p>
-                        <span className={`inline-block mt-0.5 text-[10px] font-medium ${difficultyColors[q.difficulty as keyof typeof difficultyColors]}`}>{q.difficulty}</span>
+                        <span className={`inline-block mt-0.5 text-[10px] font-medium ${difficultyColors[q.difficulty]}`}>{q.difficulty}</span>
                       </div>
                     </button>
                   );
@@ -369,7 +367,7 @@ export default function HRRound() {
                               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
                                 {q.company}
                               </span>
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${difficultyColors[q.difficulty as keyof typeof difficultyColors]}`}>
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${difficultyColors[q.difficulty]}`}>
                                 {q.difficulty}
                               </span>
                               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
@@ -386,7 +384,7 @@ export default function HRRound() {
                             <div className="pt-3">
                               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Tips</p>
                               <ul className="space-y-1.5">
-                                {q.tips.map((tip: string, i: number) => (
+                                {q.tips.map((tip, i) => (
                                   <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
                                     <svg className="w-4 h-4 mt-0.5 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -450,7 +448,7 @@ export default function HRRound() {
                   </div>
                   <button
                     onClick={handleSubmitAnswer}
-                    disabled={!userAnswer.trim() || isGenerating}
+                    disabled={!userAnswer.trim() || !selectedQuestion || isGenerating}
                     className="px-5 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors self-end flex items-center gap-2"
                   >
                     {isGenerating ? (
@@ -542,7 +540,7 @@ export default function HRRound() {
                   <div>
                     <p className="font-semibold text-green-600 mb-1">Strengths</p>
                     <ul className="space-y-1">
-                      {report.strengths.map((s: string, i: number) => (
+                      {report.strengths.map((s, i) => (
                         <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
                           <svg className="w-3.5 h-3.5 mt-0.5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                           {s}
@@ -553,7 +551,7 @@ export default function HRRound() {
                   <div>
                     <p className="font-semibold text-red-600 mb-1">Weaknesses</p>
                     <ul className="space-y-1">
-                      {report.weaknesses.map((s: string, i: number) => (
+                      {report.weaknesses.map((s, i) => (
                         <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
                           <svg className="w-3.5 h-3.5 mt-0.5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                           {s}
@@ -564,7 +562,7 @@ export default function HRRound() {
                   <div>
                     <p className="font-semibold text-indigo-600 mb-1">Suggestions</p>
                     <ul className="space-y-1">
-                      {report.suggestions.map((s: string, i: number) => (
+                      {report.suggestions.map((s, i) => (
                         <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
                           <svg className="w-3.5 h-3.5 mt-0.5 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                           {s}

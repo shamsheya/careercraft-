@@ -9,7 +9,7 @@ const yearTabs = [
   { key: 4, label: 'Final Year' },
 ];
 
-const badgeColors: Record<string, string> = {
+const badgeColors = {
   'Number Ninja': 'bg-cyan-100 text-cyan-700',
   'Interview Ace': 'bg-purple-100 text-purple-700',
   'Debate Champion': 'bg-teal-100 text-teal-700',
@@ -17,7 +17,7 @@ const badgeColors: Record<string, string> = {
   'Daily Streak Maintainer': 'bg-amber-100 text-amber-700',
 };
 
-function getBadgeColor(name: string): string {
+function getBadgeColor(name) {
   return badgeColors[name] || 'bg-gray-100 text-gray-700';
 }
 
@@ -26,7 +26,7 @@ export default function Leaderboard() {
   const { user, leaderboard, users } = state;
 
   const [search, setSearch] = useState('');
-  const [yearFilter, setYearFilter] = useState<'all' | 1 | 2 | 3 | 4>('all');
+  const [yearFilter, setYearFilter] = useState('all');
 
   const sortedEntries = useMemo(() => {
     const entries = leaderboard.length > 0 ? leaderboard : users.map(u => ({
@@ -89,7 +89,7 @@ export default function Leaderboard() {
           {yearTabs.map(tab => (
             <button
               key={tab.key}
-              onClick={() => setYearFilter(tab.key as any)}
+              onClick={() => setYearFilter(tab.key)}
               className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                 yearFilter === tab.key
                   ? 'bg-indigo-600 text-white shadow-md'

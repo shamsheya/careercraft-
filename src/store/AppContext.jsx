@@ -1,35 +1,7 @@
-import { createContext, useContext, useReducer, ReactNode, useEffect, useCallback, useState } from 'react';
-import type { User, Badge, HRResponse, FeedbackReport, GDSession, DailyChallenge, ProgressData, LeaderboardEntry } from '../types';
+import { createContext, useContext, useReducer, useEffect, useCallback, useState } from 'react';
 import { api, getStoredToken, setToken } from '../utils/api';
 
-interface AppState {
-  user: User | null;
-  users: User[];
-  hrResponses: HRResponse[];
-  feedbackReports: FeedbackReport[];
-  gdSessions: GDSession[];
-  dailyChallenges: DailyChallenge[];
-  leaderboard: LeaderboardEntry[];
-  progress: ProgressData;
-  darkMode: boolean;
-}
-
-type Action =
-  | { type: 'SET_USER'; payload: User | null }
-  | { type: 'SET_USERS'; payload: User[] }
-  | { type: 'ADD_HR_RESPONSE'; payload: HRResponse }
-  | { type: 'ADD_FEEDBACK'; payload: FeedbackReport }
-  | { type: 'ADD_GD_SESSION'; payload: GDSession }
-  | { type: 'UPDATE_GD_SESSION'; payload: GDSession }
-  | { type: 'COMPLETE_CHALLENGE'; payload: string }
-  | { type: 'ADD_BADGE'; payload: Badge }
-  | { type: 'UPDATE_STREAK'; payload: number }
-  | { type: 'UPDATE_LEADERBOARD'; payload: LeaderboardEntry[] }
-  | { type: 'UPDATE_PROGRESS'; payload: Partial<ProgressData> }
-  | { type: 'SET_PROGRESS'; payload: ProgressData }
-  | { type: 'TOGGLE_DARK_MODE' };
-
-const defaultUser: User = {
+const defaultUser = {
   id: 'user-1',
   name: 'Demo Student',
   email: 'demo@college.edu',
@@ -42,7 +14,7 @@ const defaultUser: User = {
   joinedAt: new Date().toISOString(),
 };
 
-const initialState: AppState = {
+const initialState = {
   user: defaultUser,
   users: [
     { ...defaultUser, id: 'user-1', name: 'Demo Student', year: 3, avatar: '\u{1F9D1}\u200D\u{1F393}', totalScore: 0 },
@@ -58,7 +30,7 @@ const initialState: AppState = {
   darkMode: false,
 };
 
-function appReducer(state: AppState, action: Action): AppState {
+function appReducer(state, action) {
   switch (action.type) {
     case 'SET_USER':
       return { ...state, user: action.payload };
@@ -97,15 +69,9 @@ function appReducer(state: AppState, action: Action): AppState {
   }
 }
 
-interface AppContextType {
-  state: AppState;
-  dispatch: React.Dispatch<Action>;
-  isAuthLoading: boolean;
-}
+const AppContext = createContext(undefined);
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
-
-export function AppProvider({ children }: { children: ReactNode }) {
+export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, initialState, () => {
     const saved = localStorage.getItem('careercraft_state');
     if (saved) {
@@ -123,7 +89,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     try {
       const data = await api.getProfile();
-      dispatch({ type: 'SET_USER', payload: data.user as any });
+      dispatch({ type: 'SET_USER', payload: data.user });
       if (data.progress) dispatch({ type: 'SET_PROGRESS', payload: data.progress });
     } catch {
       setToken(null);
@@ -136,7 +102,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const toSave = { ...state };
     if (toSave.user?.id.startsWith('user-')) {
-      delete (toSave as any).user;
+      delete toSave.user;
     }
     localStorage.setItem('careercraft_state', JSON.stringify(toSave));
   }, [state]);

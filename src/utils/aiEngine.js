@@ -1,6 +1,4 @@
-import type { HRFeedback, FeedbackReport } from '../types';
-
-export function generateHRFeedback(question: string, answer: string): HRFeedback {
+export function generateHRFeedback(question, answer) {
   const wordCount = answer.split(/\s+/).filter(Boolean).length;
   const sentenceCount = answer.split(/[.!?]+/).filter(Boolean).length;
   const avgWordsPerSentence = sentenceCount > 0 ? wordCount / sentenceCount : wordCount;
@@ -37,8 +35,8 @@ export function generateHRFeedback(question: string, answer: string): HRFeedback
 
   const overallScore = Math.min(100, Math.round((clarityScore + confidenceScore + relevanceScore) / 3));
 
-  const strengths: string[] = [];
-  const improvements: string[] = [];
+  const strengths = [];
+  const improvements = [];
 
   if (clarityScore >= 70) strengths.push('Clear and well-structured answer');
   else if (clarityScore >= 50) improvements.push('Try structuring your answer with a clear beginning, middle, and end');
@@ -71,7 +69,7 @@ export function generateHRFeedback(question: string, answer: string): HRFeedback
   };
 }
 
-export function generateFeedbackReport(roundType: string, metrics: any): FeedbackReport {
+export function generateFeedbackReport(roundType, metrics) {
   const randomOffset = () => Math.floor(Math.random() * 15) - 5;
 
   let communication = 0, technicalAccuracy = 0, confidence = 0, timeManagement = 0;
@@ -107,7 +105,7 @@ export function generateFeedbackReport(roundType: string, metrics: any): Feedbac
   return {
     id: `report-${Date.now()}`,
     date: new Date().toISOString(),
-    roundType: roundType as any,
+    roundType,
     metrics: {
       communication: Math.round(communication),
       technicalAccuracy: Math.round(technicalAccuracy),
@@ -121,8 +119,8 @@ export function generateFeedbackReport(roundType: string, metrics: any): Feedbac
   };
 }
 
-function generateStrengths(_roundType: string, comm: number, tech: number, conf: number): string[] {
-  const s: string[] = [];
+function generateStrengths(_roundType, comm, tech, conf) {
+  const s = [];
   if (comm >= 70) s.push('Strong communication skills with clear articulation');
   if (tech >= 70) s.push('Good technical knowledge and accuracy');
   if (conf >= 70) s.push('High confidence level in responses');
@@ -131,8 +129,8 @@ function generateStrengths(_roundType: string, comm: number, tech: number, conf:
   return s;
 }
 
-function generateWeaknesses(_roundType: string, comm: number, tech: number, conf: number, time: number): string[] {
-  const w: string[] = [];
+function generateWeaknesses(_roundType, comm, tech, conf, time) {
+  const w = [];
   if (comm < 60) w.push('Need to improve communication clarity and structure');
   if (tech < 60) w.push('Technical concepts need more practice');
   if (conf < 60) w.push('Confidence level needs improvement — practice more');
@@ -142,8 +140,8 @@ function generateWeaknesses(_roundType: string, comm: number, tech: number, conf
   return w;
 }
 
-function generateSuggestions(roundType: string, weaknesses: string[]): string[] {
-  const suggestions: Record<string, string[]> = {
+function generateSuggestions(roundType, weaknesses) {
+  const suggestions = {
     hr: [
       'Practice the STAR method for behavioral questions',
       'Record yourself answering questions and review',
@@ -177,7 +175,7 @@ function generateSuggestions(roundType: string, weaknesses: string[]): string[] 
   return result.slice(0, 5);
 }
 
-function extractKeywords(question: string): string[] {
+function extractKeywords(question) {
   const stopWords = new Set(['the', 'a', 'an', 'is', 'are', 'was', 'were', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'and', 'or', 'but', 'do', 'does', 'did', 'what', 'why', 'how', 'tell', 'describe', 'explain', 'about', 'your', 'you', 'me']);
   return question
     .toLowerCase()
@@ -186,7 +184,7 @@ function extractKeywords(question: string): string[] {
     .filter(w => w.length > 2 && !stopWords.has(w));
 }
 
-function generateSuggestedAnswer(question: string): string {
+function generateSuggestedAnswer(question) {
   const lowerQ = question.toLowerCase();
   if (lowerQ.includes('tell me about yourself')) {
     return 'I am a [year] year [major] student at [college] with a strong passion for [field]. I have worked on projects involving [skill 1] and [skill 2]. Recently, I completed an internship at [company] where I [achievement]. I am excited about this opportunity because [reason].';
@@ -203,9 +201,7 @@ function generateSuggestedAnswer(question: string): string {
   return 'A strong answer would address the question directly, provide a specific example from your experience, and connect it to the role you are applying for. Use the STAR method: describe the Situation, Task, Action you took, and the measurable Result.';
 }
 
-export function evaluateTechnicalAnswer(_question: string, userAnswer: string, correctAnswer: string): {
-  correct: boolean; score: number; feedback: string; explanation: string
-} {
+export function evaluateTechnicalAnswer(_question, userAnswer, correctAnswer) {
   const isCorrect = userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
   const score = isCorrect ? 100 : Math.max(0, 70 - Math.random() * 30);
   const feedback = isCorrect
@@ -214,7 +210,7 @@ export function evaluateTechnicalAnswer(_question: string, userAnswer: string, c
   return { correct: isCorrect, score: Math.round(score), feedback, explanation: feedback };
 }
 
-export function evaluateGDResponse(_topic: string, response: string): { fluency: number; confidence: number; logic: number; score: number; feedback: string } {
+export function evaluateGDResponse(_topic, response) {
   const wordCount = response.split(/\s+/).filter(Boolean).length;
   const sentences = response.split(/[.!?]+/).filter(Boolean).length;
   const hasStructure = /^(i believe|i think|according to|first|the|in my|from my)/i.test(response.trim());
@@ -246,8 +242,8 @@ export function evaluateGDResponse(_topic: string, response: string): { fluency:
   return { fluency, confidence, logic, score, feedback: `Score: ${score}/100 — ${score >= 70 ? 'Strong performance!' : score >= 50 ? 'Good effort, keep practicing.' : 'Needs improvement.'}` };
 }
 
-export function calculateLeaderboard(users: any[], reports: FeedbackReport[]): any[] {
-  const scores: Record<string, { hr: number; tech: number; gd: number; apt: number; total: number; count: number }> = {};
+export function calculateLeaderboard(users, reports) {
+  const scores = {};
 
   for (const u of users) {
     scores[u.id] = { hr: 0, tech: 0, gd: 0, apt: 0, total: 0, count: 0 };
@@ -272,7 +268,7 @@ export function calculateLeaderboard(users: any[], reports: FeedbackReport[]): a
     technicalScore: scores[u.id]?.tech || 0,
     gdScore: scores[u.id]?.gd || 0,
     aptitudeScore: scores[u.id]?.apt || 0,
-    totalScore: u.totalScore || Object.values(scores[u.id] || {}).reduce((s: number, v: any) => s + (typeof v === 'number' ? v : 0), 0),
+    totalScore: u.totalScore || Object.values(scores[u.id] || {}).reduce((s, v) => s + (typeof v === 'number' ? v : 0), 0),
     badges: u.badges || [],
     rank: 0,
   }));

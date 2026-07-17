@@ -3,23 +3,12 @@ import { useEffect, useState } from 'react';
 const COLORS = ['#6366f1', '#8b5cf6', '#ff2d95', '#00d4ff', '#fbbf24', '#34d399', '#f87171'];
 const SHAPES = ['●', '■', '▲', '★', '♦', '♥'];
 
-interface Particle {
-  id: number;
-  x: number;
-  y: number;
-  color: string;
-  shape: string;
-  size: number;
-  speed: number;
-  rotation: number;
-}
-
-export default function Confetti({ active }: { active: boolean }) {
-  const [particles, setParticles] = useState<Particle[]>([]);
+export default function Confetti({ active }) {
+  const [particles, setParticles] = useState([]);
 
   useEffect(() => {
     if (!active) return;
-    const newParticles: Particle[] = Array.from({ length: 40 }, (_, i) => ({
+    const newParticles = Array.from({ length: 40 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: -10 - Math.random() * 20,

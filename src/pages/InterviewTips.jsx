@@ -1,14 +1,6 @@
 import { useState } from 'react';
 
-interface TipCategory {
-  icon: string;
-  title: string;
-  description: string;
-  color: string;
-  tips: string[];
-}
-
-const categories: TipCategory[] = [
+const categories = [
   {
     icon: '🧍',
     title: 'Body Language',
@@ -137,10 +129,10 @@ const donts = [
 ];
 
 export default function InterviewTips() {
-  const [expanded, setExpanded] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState(null);
   const [tickerIndex, setTickerIndex] = useState(0);
 
-  const toggleCategory = (index: number) => {
+  const toggleCategory = (index) => {
     setExpanded(expanded === index ? null : index);
   };
 
