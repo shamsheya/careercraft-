@@ -118,14 +118,13 @@ router.post('/forgot-password', async (req, res) => {
     const resetToken = uuidv4();
     const expiresAt = new Date(Date.now() + 3600000).toISOString();
 
+    const tempPassword = Math.random().toString(36).slice(-8) + 'A1';
+    const tempHash = await bcrypt.hash(tempPassword, 12);
+
     db.run(
       `INSERT INTO password_resets (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)`,
       [uuidv4(), userId, resetToken, expiresAt]
     );
-    saveDb();
-
-    const tempPassword = Math.random().toString(36).slice(-8) + 'A1';
-    const tempHash = await bcrypt.hash(tempPassword, 12);
     db.run(`UPDATE users SET password_hash = ? WHERE id = ?`, [tempHash, userId]);
     saveDb();
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect, useCallback, useState } from 'react';
+import { createContext, useContext, useReducer, useEffect, useCallback, useState, useRef } from 'react';
 import { api, getStoredToken, setToken } from '../utils/api';
 
 const defaultUser = {
@@ -99,12 +99,25 @@ export function AppProvider({ children }) {
 
   useEffect(() => { loadProfile(); }, [loadProfile]);
 
+  const saveTimer = useRef(null);
   useEffect(() => {
-    const toSave = { ...state };
-    if (toSave.user?.id.startsWith('user-')) {
-      delete toSave.user;
-    }
-    localStorage.setItem('careercraft_state', JSON.stringify(toSave));
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      const toSave = {
+        users: state.users,
+        hrResponses: state.hrResponses,
+        feedbackReports: state.feedbackReports,
+        gdSessions: state.gdSessions,
+        dailyChallenges: state.dailyChallenges,
+        leaderboard: state.leaderboard,
+        progress: state.progress,
+        darkMode: state.darkMode,
+      };
+      if (state.user?.id.startsWith('user-')) {
+        toSave.user = state.user;
+      }
+      localStorage.setItem('careercraft_state', JSON.stringify(toSave));
+    }, 500);
   }, [state]);
 
   return (

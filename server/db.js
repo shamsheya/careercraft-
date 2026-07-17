@@ -7,6 +7,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_PATH = path.join(__dirname, 'careercraft.db');
 
 let db = null;
+let writeTimer = null;
+let pendingWrite = false;
 
 export async function getDb() {
   if (db) return db;
@@ -55,13 +57,22 @@ export async function getDb() {
     apt_total INTEGER DEFAULT 30,
     FOREIGN KEY (user_id) REFERENCES users(id)
   )`);
+  db.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
+  db.run(`CREATE INDEX IF NOT EXISTS idx_password_resets_user ON password_resets(user_id)`);
+  db.run(`CREATE INDEX IF NOT EXISTS idx_progress_user ON progress(user_id)`);
   saveDb();
   return db;
 }
 
 export function saveDb() {
   if (!db) return;
-  const data = db.export();
-  const buffer = Buffer.from(data);
-  fs.writeFileSync(DB_PATH, buffer);
+  if (writeTimer) clearTimeout(writeTimer);
+  if (pendingWrite) return;
+  pendingWrite = true;
+  writeTimer = setTimeout(() => {
+    const data = db.export();
+    const buffer = Buffer.from(data);
+    fs.writeFileSync(DB_PATH, buffer);
+    pendingWrite = false;
+  }, 100);
 }

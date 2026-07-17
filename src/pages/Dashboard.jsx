@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../store/AppContext';
 import Confetti from '../components/Confetti';
 
-function CircularProgress({ percentage, size = 80, strokeWidth = 6 }) {
+const CircularProgress = memo(function CircularProgress({ percentage, size = 80, strokeWidth = 6 }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percentage / 100) * circumference;
@@ -17,7 +17,7 @@ function CircularProgress({ percentage, size = 80, strokeWidth = 6 }) {
       <span className="absolute text-sm font-bold text-gray-700">{Math.round(percentage)}%</span>
     </div>
   );
-}
+});
 
 const progressCards = [
   { key: 'hr', label: 'HR Round', gradient: 'from-purple-500 to-purple-600', emoji: '\u{1F5E3}\uFE0F', link: '/hr' },
@@ -40,20 +40,25 @@ export default function Dashboard() {
   const [chestOpen, setChestOpen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const todayChallenge = dailyChallenges.find(c => c.date === todayStr);
-  const recentReports = [...feedbackReports].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 3);
+  const streak = user?.streak ?? 0;
 
-  const entries = [
+  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const todayChallenge = useMemo(() => dailyChallenges.find(c => c.date === todayStr), [dailyChallenges, todayStr]);
+  const recentReports = useMemo(
+    () => [...feedbackReports].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 3),
+    [feedbackReports]
+  );
+
+  const entries = useMemo(() => [
     { label: 'HR', score: progress.hr.averageScore },
     { label: 'Technical', score: progress.technical.averageScore },
     { label: 'GD', score: progress.gd.averageScore },
     { label: 'Aptitude', score: progress.aptitude.averageScore },
-  ];
-  const weakest = entries.reduce((min, e) => (e.score < min.score ? e : min), entries[0]);
+  ], [progress.hr.averageScore, progress.technical.averageScore, progress.gd.averageScore, progress.aptitude.averageScore]);
+
+  const weakest = useMemo(() => entries.reduce((min, e) => (e.score < min.score ? e : min), entries[0]), [entries]);
 
   const overallScore = useMemo(() => Math.round(entries.reduce((s, e) => s + e.score, 0) / entries.length), [entries]);
-  const streak = user?.streak ?? 0;
 
   if (!user) {
     return (
