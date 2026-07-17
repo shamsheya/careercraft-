@@ -36,8 +36,15 @@ export default {
         'pulse-slow': 'pulse 3s infinite',
         'glow': 'glow 2s ease-in-out infinite alternate',
         'float': 'float 3s ease-in-out infinite',
+        'float-slow': 'float 5s ease-in-out infinite',
+        'float-fast': 'float 2s ease-in-out infinite',
+        'drift': 'drift 6s ease-in-out infinite alternate',
+        'drift-slow': 'drift 10s ease-in-out infinite alternate',
         'confetti': 'confetti 1s ease-out forwards',
         'slide-up': 'slideUp 0.5s ease-out',
+        'fade-in': 'fadeIn 0.6s ease-out forwards',
+        'shimmer': 'shimmer 2s ease-in-out infinite',
+        'twinkle': 'twinkle 2s ease-in-out infinite alternate',
         'streak-glow': 'streakGlow 1.5s ease-in-out infinite alternate',
         'treasure-open': 'treasureOpen 0.8s ease-out forwards',
       },
@@ -50,6 +57,10 @@ export default {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-10px)' },
         },
+        drift: {
+          '0%': { transform: 'translateX(0px) translateY(0px)' },
+          '100%': { transform: 'translateX(30px) translateY(-20px)' },
+        },
         confetti: {
           '0%': { transform: 'translateY(0) rotate(0deg)', opacity: '1' },
           '100%': { transform: 'translateY(100vh) rotate(720deg)', opacity: '0' },
@@ -57,6 +68,18 @@ export default {
         slideUp: {
           '0%': { transform: 'translateY(20px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% center' },
+          '100%': { backgroundPosition: '200% center' },
+        },
+        twinkle: {
+          '0%': { opacity: '0.3', transform: 'scale(0.8)' },
+          '100%': { opacity: '1', transform: 'scale(1.2)' },
         },
         streakGlow: {
           '0%': { textShadow: '0 0 5px rgba(251, 191, 36, 0.5)' },
